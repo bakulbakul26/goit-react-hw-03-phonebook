@@ -61,7 +61,7 @@ export class App extends Component {
     );
 
     return (
-      <div className="appContainer">
+      <div>
         <h1>Phonebook</h1>
         <ContactForm onSubmit={this.addContact} />
 
