@@ -28,14 +28,13 @@ ContactList.propTypes = {
 const ContactItem = ({ contact, onDeleteContact }) => (
   <li>
     <p>
-      {contact.name}:{contact.number}
+      {contact.name}: {contact.number}
     </p>
     <button className={css.btn} onClick={() => onDeleteContact(contact.id)}>
       Delete
     </button>
   </li>
 );
-
 ContactItem.propTypes = {
   contact: PropTypes.shape({
     id: PropTypes.string.isRequired,

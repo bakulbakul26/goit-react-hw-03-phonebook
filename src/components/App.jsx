@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import ContactForm from 'components/contactform/ContactForm';
+import ContactList from 'components/contactlist/ContactList';
 import Filter from 'components/filter/Filter';
-import ContactForm from './contactform/ContactForm';
-import ContactList from './contactlist/ContactList';
 
 export const App = () => {
   const [contacts, setContacts] = useState([]);
@@ -13,7 +13,7 @@ export const App = () => {
       try {
         setContacts(JSON.parse(storedContacts));
       } catch (error) {
-        console.error('Error parsing contact from localStorage:0, error');
+        console.error('Error parsing contacts from localStorage:', error);
       }
     }
   }, []);
@@ -28,7 +28,7 @@ export const App = () => {
     );
 
     if (isContactExists) {
-      alert(`${contact.name} is alredy in contact.`);
+      alert(`${contact.name} is already in contacts.`);
       return;
     }
 
@@ -51,29 +51,26 @@ export const App = () => {
         height: '100vh',
         display: 'flex',
         justifyContent: 'center',
+        flexDirection: 'column',
         alignItems: 'center',
-        fontSize: 40,
         color: '#010101',
       }}
     >
-      <div>
-        <h1>Phonebook</h1>
-        <ContactForm addContact={addContact} />
-      </div>
-      <div>
-        <h2>Contact</h2>
-      </div>
+      <h1>Phonebook</h1>
+      <ContactForm addContact={addContact} />
 
+      <h2>Contacts</h2>
       <Filter filter={filter} onChangeFilter={setFilter} />
-
       {filteredContacts.length > 0 ? (
         <ContactList
           contacts={filteredContacts}
           onDeleteContact={deleteContact}
         />
       ) : (
-        <p>No contacts found</p>
+        <p>No contacts found.</p>
       )}
     </div>
   );
 };
+
+export default App;
