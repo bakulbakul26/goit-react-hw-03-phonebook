@@ -1,79 +1,76 @@
-import { Component } from 'react';
+import React, { useState, useEffect } from 'react';
+import ContactForm from 'components/contactform/ContactForm';
+import ContactList from 'components/contactlist/ContactList';
 import Filter from 'components/filter/Filter';
-import ContactForm from './contactform/ContactForm';
-import ContactList from './contactlist/ContactList';
-import { nanoid } from 'nanoid';
-import { Notiflix } from 'notiflix';
 
-export class App extends Component {
-  state = {
-    contacts: [],
-    filter: '',
-  };
+export const App = () => {
+  const [contacts, setContacts] = useState([]);
+  const [filter, setFilter] = useState('');
 
-  componentDidMount() {
+  useEffect(() => {
     const storedContacts = localStorage.getItem('contacts');
     if (storedContacts) {
-      this.setState({ contacts: JSON.parse(storedContacts) });
+      try {
+        setContacts(JSON.parse(storedContacts));
+      } catch (error) {
+        console.error('Error parsing contacts from localStorage:', error);
+      }
     }
-  }
+  }, []);
 
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.contacts !== this.state.contacts) {
-      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-    }
-  }
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
 
-  addContact = newContact => {
-    const { name, number } = newContact;
-    const isContactExists = this.state.contacts.some(
-      contact => contact.name.toLowerCase() === name.toLowerCase()
+  const addContact = contact => {
+    const isContactExists = contacts.some(
+      c => c.name.toLowerCase() === contact.name.toLowerCase()
     );
+
     if (isContactExists) {
-      Notiflix.Notify.failure('This contact already exists!');
+      alert(`${contact.name} is already in contacts.`);
       return;
     }
-    const contact = {
-      id: nanoid(),
-      name,
-      number,
-    };
-    this.setState(prevState => ({
-      contacts: [...prevState.contacts, contact],
-    }));
+
+    setContacts(prevContacts => [...prevContacts, contact]);
   };
 
-  handleFilterChange = filterValue => {
-    this.setState({ filter: filterValue });
-  };
-
-  deleteContact = contactId => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== contactId),
-    }));
-  };
-
-  render() {
-    const { contacts, filter } = this.state;
-
-    const filteredContacts = contacts.filter(contact =>
-      contact.name.toLowerCase().includes(filter.toLowerCase())
+  const deleteContact = id => {
+    setContacts(prevContacts =>
+      prevContacts.filter(contact => contact.id !== id)
     );
+  };
 
-    return (
-      <div>
-        <h1>Phonebook</h1>
-        <ContactForm onSubmit={this.addContact} />
+  const filteredContacts = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(filter.toLowerCase())
+  );
 
-        <h2>Contacts</h2>
-        <Filter value={filter} onChange={this.handleFilterChange} />
+  return (
+    <div
+      style={{
+        height: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        alignItems: 'center',
+        color: '#010101',
+      }}
+    >
+      <h1>Phonebook</h1>
+      <ContactForm addContact={addContact} />
+
+      <h2>Contacts</h2>
+      <Filter filter={filter} onChangeFilter={setFilter} />
+      {filteredContacts.length > 0 ? (
         <ContactList
           contacts={filteredContacts}
-          onDeleteContact={this.deleteContact}
+          onDeleteContact={deleteContact}
         />
-      </div>
-    );
-  }
-}
+      ) : (
+        <p>No contacts found.</p>
+      )}
+    </div>
+  );
+};
 
 export default App;
